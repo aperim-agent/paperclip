@@ -1,6 +1,5 @@
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@paperclipai/adapter-utils";
@@ -63,16 +62,16 @@ import { prepareClaudePromptBundle } from "./prompt-cache.js";
 import { SANDBOX_INSTALL_COMMAND } from "../index.js";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
-const require = createRequire(import.meta.url);
 
 function resolvePluginMcpStdioPath(): string | null {
-  try {
-    const pkgJsonPath = require.resolve("@paperclipai/mcp-server/package.json");
-    const resolvedPath = path.join(path.dirname(pkgJsonPath), "dist", "plugin-stdio.js");
-    return existsSync(resolvedPath) ? resolvedPath : null;
-  } catch {
-    return null;
-  }
+  // Env var override for non-standard installs
+  const envPath = process.env.PAPERCLIP_PLUGIN_MCP_STDIO_PATH;
+  if (envPath) return existsSync(envPath) ? envPath : null;
+
+  // Standard install: mcp-server is a sibling package in node_modules
+  // __moduleDir is <install>/dist/server at runtime
+  const candidate = path.resolve(__moduleDir, "../../../@paperclipai/mcp-server/dist/plugin-stdio.js");
+  return existsSync(candidate) ? candidate : null;
 }
 
 interface ClaudeExecutionInput {

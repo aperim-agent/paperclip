@@ -1,0 +1,18 @@
+{
+  "model": "sonnet",
+  "effortLevel": "medium",
+  "env": {
+    "OTEL_RESOURCE_ATTRIBUTES": "estate.repo=aperim-agent/paperclip"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/test-budget.sh" },
+          { "type": "command", "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/big-dump-guard.sh" }
+        ]
+      }
+    ]
+  }
+}
